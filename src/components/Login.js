@@ -21,6 +21,7 @@ function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [accessToken, setAccessToken] = useState('');
+  const [refreshToken, setRefreshToken] = useState('');
 
   useEffect(() => {
     const storedAccessToken = localStorage.getItem('accessToken');
@@ -32,21 +33,36 @@ function Login() {
 
   function checkCurrentUser(token) {
     client.get("/api/profile/", {
-      headers: new Headers({
+      headers: {
         'Authorization': `Bearer ${token}`
-      })
+      }
     })
+    .then(function (res) {
+      setCurrentUser(true);
+    })
+    .catch(function (error) {
+      client.post("/api/token/refresh/", {
+        refresh: refreshToken,
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
       .then(function (res) {
         setCurrentUser(true);
+        const { access } = res.data;
+        localStorage.setItem('accessToken', access);
       })
-      .catch(function (error) {
-        setCurrentUser(false);
+      .catch(function (err) {
+        console.log(err);
       });
+      setCurrentUser(false);
+    });
   }
 
-  function storeAccessToken(token) {
+  function storeTokens(token, refresh) {
     localStorage.setItem('accessToken', token);
-    console.log('accessToken-->', accessToken)
+    localStorage.setItem('refreshToken', refresh);
   }
 
   function submitLogin(e) {
@@ -57,27 +73,37 @@ function Login() {
         username: username,
         password: password
       }
-    ).then(function (res) {
-      const { access } = res.data;
+    )
+    .then(function (res) {
+      const { access, refresh } = res.data;
+      setRefreshToken(refresh);
       setAccessToken(access);
-      storeAccessToken(access);
+      storeTokens(access, refresh);
       setCurrentUser(true);
+    })
+    .catch(function (error) {
+      console.log(error);
     });
   }
 
   function submitLogout(e) {
     e.preventDefault();
-  
     client.post(
-      "/api/logout/", {
-        headers: new Headers({
+      "/api/logout/",
+      null,
+      {
+        headers: {
           'Authorization': `Bearer ${accessToken}`
-        })
+        }
       }
-          ).then(function (res) {
+    )
+    .then(function (res) {
       setCurrentUser(false);
       setAccessToken('');
       localStorage.removeItem('accessToken');
+    })
+    .catch(function (error) {
+      console.log(error);
     });
   }
 
@@ -101,17 +127,13 @@ function Login() {
       </div>
     );
   }
+
   return (
     <div>
       <Navbar bg="dark" variant="dark">
         <Container>
           <Navbar.Brand>Product Admin App</Navbar.Brand>
           <Navbar.Toggle />
-          <Navbar.Collapse className="justify-content-end">
-            <Navbar.Text>
-              <Button id="form_btn" variant="light">Login</Button>
-            </Navbar.Text>
-          </Navbar.Collapse>
         </Container>
       </Navbar>
 
@@ -120,8 +142,7 @@ function Login() {
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>User Name</Form.Label>
             <Form.Control type="text" placeholder="Enter username" value={username} onChange={e => setUsername(e.target.value)} />
-            <Form.Text className="text-muted">
-            </Form.Text>
+            <Form.Text className="text-muted"></Form.Text>
           </Form.Group>
           <Form.Group className="mb-3" controlId="formBasicPassword">
             <Form.Label>Password</Form.Label>

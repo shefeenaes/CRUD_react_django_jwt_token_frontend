@@ -1,0 +1,70 @@
+.datatable-container {
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .datatable {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .datatable-header {
+    padding: 10px;
+    background-color: #f2f2f2;
+    font-weight: bold;
+    text-align: left;
+  }
+  
+  .datatable-cell {
+    padding: 10px;
+  }
+  
+  .datatable-row:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 10px;
+  }
+  
+  .pagination-button {
+    margin-left: 5px;
+    padding: 5px 10px;
+    background-color: #f2f2f2;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .pagination-info {
+    margin-left: 10px;
+  }
+  
+  .pagination-input {
+    width: 50px;
+    margin-left: 5px;
+  }
+  
+  .pagination-select {
+    margin-left: 10px;
+  }
+  .action-button {
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .update-button {
+    background-color: #4caf50;
+    color: white;
+  }
+  
+  .delete-button {
+    background-color: #f44336;
+    color: white;
+  }
+    

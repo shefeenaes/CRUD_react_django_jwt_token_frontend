@@ -1,6 +1,8 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import DataTable from './DataTable';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 const ShowProducts = () => {
@@ -32,8 +34,11 @@ const ShowProducts = () => {
 
   return (
     <div>
+       
       <h1>Product List</h1><button>Add new Product</button>
+     
       <DataTable data={Products} />
+      <ToastContainer />
     </div>
   );
 };
