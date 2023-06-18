@@ -3,11 +3,9 @@ import React from 'react';
 
 import { toast } from 'react-toastify';
 class Add extends React.Component{
-    constructor(props){
-        super(props);
-        this.state = {
-        flag: false,
-        };
+    constructor(){
+        super();
+        
         this.state={
             name:'',
             description:'',
@@ -26,7 +24,8 @@ class Add extends React.Component{
     }
 
     // Submit Form
-    submitForm(){
+    submitForm(e){
+
             const storedAccessToken = localStorage.getItem('accessToken');
             const accessToken = storedAccessToken;
             console.log('accessToken-->',accessToken)
@@ -46,8 +45,6 @@ class Add extends React.Component{
               }))
             .then((data)=>console.log(data)
             );
-            this.setState({ flag: true });
-            this.props.onValueChange(true);
     
             this.setState({
                 name:'',

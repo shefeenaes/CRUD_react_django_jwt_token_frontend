@@ -35,3 +35,34 @@ span.input-group-addon {
     align-items: center;
     margin-top: 5%;
 }
+.nav-tabs {
+  display: flex;
+  justify-content: space-between;
+}
+
+.nav-tabs .nav-link {
+  padding: 0.5rem 1rem;
+  color: #fff;
+  background-color: #343a40;
+  border: 1px solid transparent;
+  border-radius: 0.25rem 0.25rem 0 0;
+}
+
+.nav-tabs .nav-link:hover {
+  background-color: #495057;
+}
+
+.nav-tabs .nav-link.active {
+  background-color: #fff;
+  color: #343a40;
+  border-color: #dee2e6 #dee2e6 #fff;
+}
+.navbar-button {
+  margin-left: 1rem;
+}
+
+.navbar-button:hover {
+  background-color: #fff;
+  color: #343a40;
+}
+

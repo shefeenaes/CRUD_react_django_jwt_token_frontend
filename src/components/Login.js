@@ -7,7 +7,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import ShowProducts from './ShowProducts';
-
+import AddProduct from './AddProduct';
 axios.defaults.xsrfCookieName = 'csrftoken';
 axios.defaults.xsrfHeaderName = 'X-CSRFToken';
 axios.defaults.withCredentials = true;
@@ -17,6 +17,7 @@ const client = axios.create({
 });
 
 function Login() {
+  const [showAddProduct, setShowAddProduct] = useState(false);
   const [currentUser, setCurrentUser] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -106,24 +107,48 @@ function Login() {
       console.log(error);
     });
   }
+  function goToHome(e) {
+    e.preventDefault()
+    setCurrentUser(true);
+    
+    setShowAddProduct(false);
+   
+  }
+  function loadAddProduct(e) {
+    e.preventDefault()
+    
+    setShowAddProduct(true);
+   
+  }
 
   if (currentUser) {
     return (
       <div>
         <Navbar bg="dark" variant="dark">
-          <Container>
-            <Navbar.Brand>Product Admin App</Navbar.Brand>
-            <Navbar.Toggle />
-            <Navbar.Collapse className="justify-content-end">
-              <Navbar.Text>
-                <form onSubmit={e => submitLogout(e)}>
-                  <Button type="submit" variant="light">Log out</Button>
-                </form>
-              </Navbar.Text>
-            </Navbar.Collapse>
-          </Container>
-        </Navbar>
-        <ShowProducts/>
+  <Container>
+    <Navbar.Brand>Product Admin App</Navbar.Brand>
+    <Navbar.Toggle />
+    <Navbar.Collapse className="justify-content-end">
+      <Navbar.Text>
+        <form onSubmit={e => goToHome(e)}>
+          <Button type="submit" variant="light" className="navbar-button">Home</Button>
+        </form>
+      </Navbar.Text>
+      <Navbar.Text>
+        <form onSubmit={e => loadAddProduct(e)}>
+          <Button type="submit" variant="light" className="navbar-button">Add New Product</Button>
+        </form>
+      </Navbar.Text>
+      <Navbar.Text>
+        <form onSubmit={e => submitLogout(e)}>
+          <Button type="submit" variant="light" className="navbar-button">Log out</Button>
+        </form>
+      </Navbar.Text>
+    </Navbar.Collapse>
+  </Container>
+</Navbar>
+
+{showAddProduct ? <AddProduct /> : <ShowProducts />}
       </div>
     );
   }
