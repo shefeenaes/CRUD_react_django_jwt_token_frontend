@@ -100,7 +100,7 @@ const DataTable = ({ data },) => {
       });
     } catch (error) {
       console.error(error);
-      toast.error('deletion failed', {
+      toast.error('an unexpected error occured', {
         position: toast.POSITION.TOP_RIGHT,
         autoClose: 3000,
       });
