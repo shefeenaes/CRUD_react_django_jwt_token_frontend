@@ -1,7 +1,11 @@
 import React from 'react';
+import axios from 'axios';
+
+import { toast } from 'react-toastify';
 class Update extends React.Component{
-    constructor(){
-        super();
+    constructor(props) {
+        super(props);
+        this.valueFromParent = props.valueFromParent;
         this.state={
             name:'',
             description:'',
@@ -11,6 +15,7 @@ class Update extends React.Component{
         }
         this.changeHandler=this.changeHandler.bind(this);
         this.submitForm=this.submitForm.bind(this);
+        
     }
 
     // Input Change Handler
@@ -22,8 +27,37 @@ class Update extends React.Component{
 
     // Submit Form
     submitForm(){
-        var id=this.props.match.params.id;
-        fetch('http://127.0.0.1:8000/backend/product/'+id+'/',{
+        const id =this.valueFromParent
+        const storedAccessToken = localStorage.getItem('accessToken');
+        const accessToken = storedAccessToken;
+        console.log('accessToken-->',accessToken)
+        console.log('data-->',JSON.stringify(this.state))
+        try{
+        fetch(`http://127.0.0.1:8000/api/updateProduct/${id}/`,{
+            method:'PUT',
+            body:JSON.stringify(this.state),
+            headers:{
+                'Content-type': 'application/json; charset=UTF-8',
+                'Authorization': `Bearer ${accessToken}`
+            },
+        })
+        .then(response=>response.json(),toast.success('product updated successfully!', {
+            position: toast.POSITION.TOP_RIGHT,
+            autoClose: 3000,
+          }))
+        .then((data)=>console.log(data)
+        );
+
+       
+    }catch (error) {
+        console.error(error);
+        toast.error('an unexpected error occured', {
+          position: toast.POSITION.TOP_RIGHT,
+          autoClose: 3000,
+        });
+      }
+       // var id=this.props.match.params.id;
+      /*  fetch('http://127.0.0.1:8000/backend/product/'+id+'/',{
             method:'PUT',
             body:JSON.stringify(this.state),
             headers:{
@@ -31,21 +65,33 @@ class Update extends React.Component{
             },
         })
         .then(response=>response.json())
-        .then((data)=>console.log(data));
+        .then((data)=>console.log(data));*/
     }
 
-    fetchData(){
-        var id=this.props.match.params.id;
-        fetch('http://127.0.0.1:8000//backend/product/'+id)
-        .then(response=>response.json())
-        .then((data)=>{
+    fetchData= async () => {
+        const id =this.valueFromParent
+        
+    const storedAccessToken = localStorage.getItem('accessToken');
+    const accessToken = storedAccessToken;
+        const config = {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`
+            }
+          };
+        try {
+            const response = await axios.get(`http://localhost:8000/api/showProduct/${id}/`, config);
+            const parsedData = response.data;
+            console.log(parsedData);
             this.setState({
-                full_name:data.full_name,
-                email:data.email,
-                contact:data.contact,
-                address:data.address
+                name:parsedData.name,
+                description:parsedData.description,
+                stock:parsedData.stock,
+                price:parsedData.price
             });
-        });
+          } catch (error) {
+            console.error(error);
+          }
+    
     }
 
     componentDidMount(){
@@ -77,7 +123,7 @@ class Update extends React.Component{
                     <tr>
                         <th>Stock</th>
                         <td>
-                            <input value={this.state.stock} name="contact" onChange={this.changeHandler} type="text" className="form-control" />
+                            <input value={this.state.stock} name="stock" onChange={this.changeHandler} type="text" className="form-control" />
                         </td>
                     </tr>
                     <tr>

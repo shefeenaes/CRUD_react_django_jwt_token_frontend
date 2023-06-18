@@ -3,10 +3,11 @@ import React, { useState, useEffect } from 'react';
 import DataTable from './DataTable';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import AddProduct from './AddProduct';
 
 const ShowProducts = () => {
   const [Products, setProducts] = useState([]);
+  const [isAdd, setAddComponent] = useState(false);
 
   const fetchProducts = async () => {
     const storedAccessToken = localStorage.getItem('accessToken');
@@ -32,15 +33,28 @@ const ShowProducts = () => {
     fetchProducts();
   }, []);
 
+  const addProduct = () => {
+    setAddComponent(!isAdd)
+  }
+  const handleValueChange = (value) => {
+    setAddComponent(value);
+  };
+  if(isAdd){
   return (
     <div>
-       
-      <h1>Product List</h1><button>Add new Product</button>
-     
-      <DataTable data={Products} />
-      <ToastContainer />
+       <AddProduct onValueChange={handleValueChange}/>
+       <ToastContainer />
     </div>
   );
+};
+return (
+  <div>
+     <button onClick={addProduct}>Add new Product</button>
+   
+    <DataTable data={Products} />
+    <ToastContainer />
+  </div>
+);
 };
 
 export default ShowProducts;

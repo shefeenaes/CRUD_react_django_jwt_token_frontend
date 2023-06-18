@@ -3,10 +3,15 @@ import { useTable, usePagination, useSortBy } from 'react-table';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
+import { useState } from 'react';
 import './DataTable.css'; // Import custom CSS file
+import UpdateProduct from './UpdateProduct';
 
-const DataTable = ({ data }) => {
+const DataTable = ({ data },) => {
   // Define the table columns
+  
+  const [isUpdate, setUpdateComponent] = useState(false);
+  const [Id, setId] = useState();
   const columns = React.useMemo(
     () => [
       {
@@ -70,7 +75,9 @@ const DataTable = ({ data }) => {
 
   // Handle the update action
   const handleUpdate = (row) => {
-    // Implement your update logic here
+    
+    setId(row.original.id);
+    setUpdateComponent(true)
     console.log('Updating row:', row);
   };
 
@@ -79,13 +86,11 @@ const DataTable = ({ data }) => {
     const id = row.original.id;
     const storedAccessToken = localStorage.getItem('accessToken');
     const accessToken = storedAccessToken;
-
     const config = {
       headers: {
         'Authorization': `Bearer ${accessToken}`
       }
     };
-
     try {
       const response = await axios.delete(`http://127.0.0.1:8000/api/deleteProduct/${id}/`, config);
       console.log('response-->' + response);
@@ -95,14 +100,14 @@ const DataTable = ({ data }) => {
       });
     } catch (error) {
       console.error(error);
-      toast.success('Row deleted successfully!', {
+      toast.error('deletion failed', {
         position: toast.POSITION.TOP_RIGHT,
         autoClose: 3000,
       });
     }
     console.log('Deleting row:', row);
   };
-
+if(!isUpdate){
   return (
     <div className="datatable-container">
       <table {...getTableProps()} className="datatable">
@@ -206,6 +211,11 @@ const DataTable = ({ data }) => {
       </div>
     </div>
   );
+          }
+          return(<div>
+            <UpdateProduct valueFromParent={Id}/>
+
+          </div>)
 };
 
 export default DataTable;
