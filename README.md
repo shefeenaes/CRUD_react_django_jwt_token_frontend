@@ -73,3 +73,7 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 # CRUD_react_django_jwt_token_frontend
 this is a repository that stores front end part of a Django-React Product CRUD App, that uses JWT token as Authentication
 
+
+# CRUD_react_django_jwt_token_frontend
+this is a repository that stores front end part of a Django-React Product CRUD App, that uses JWT token as Authentication
+
