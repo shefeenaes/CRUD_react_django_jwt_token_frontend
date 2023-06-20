@@ -23,7 +23,7 @@ function Login() {
   const [password, setPassword] = useState('');
   const [accessToken, setAccessToken] = useState('');
   const [refreshToken, setRefreshToken] = useState('');
-  const [grandparentValue, setGrandparentValue] = useState('');
+  const [grandparentValue, setGrandparentValue] = useState(false);
 
   const handleValueChange = (value) => {
     setGrandparentValue(value);
@@ -46,7 +46,7 @@ function Login() {
       if (storedAccessToken) {
         refreshAccessToken(storedAccessToken, storedRefreshToken);
       }
-    }, 5 * 60 * 1000); // Refresh token every 5 minutes
+    }, 2 * 60 * 1000); // Refresh token every 2minutes
 
     return () => {
       clearInterval(tokenRefreshTimer); // Clear the timer when component unmounts
@@ -143,7 +143,7 @@ function Login() {
     setCurrentUser(true);
     setShowAddProduct(false);
 
-    console.log('showAddProduct+goToHome-->', showAddProduct);
+    console.log('show add product-->', showAddProduct);
   }
   function loadAddProduct(e) {
     e.preventDefault();

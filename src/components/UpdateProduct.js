@@ -7,21 +7,17 @@ class Update extends React.Component {
     super(props);
     this.state = {
         onValueChange: '',
-    };
-    this.valueFromParent = props.valueFromParent;
+        name: '',
+        description: '',
+        price: '',
+        stock: '',
+        image: '',
+      };
+      this.valueFromParent = props.valueFromParent;
+
+      this.changeHandler = this.changeHandler.bind(this);
+      this.submitForm = this.submitForm.bind(this);
     
-    this.state = {
-      name: '',
-      description: '',
-      price: '',
-      stock: '',
-      image: '',
-    };
-    this.changeHandler = this.changeHandler.bind(this);
-    this.submitForm = this.submitForm.bind(this);
-    
-    this.props.onValueChange(true);
-    console.log("constructor")
   }
 
   // Input Change Handler
@@ -96,26 +92,32 @@ class Update extends React.Component {
       }
     };
     try {
-      const response = await axios.get(`http://localhost:8000/api/showProduct/${id}/`, config);
-      const parsedData = response.data;
-      console.log(parsedData);
-      this.setState({
-        name: parsedData.name,
-        description: parsedData.description,
-        stock: parsedData.stock,
-        price: parsedData.price,
-        childValue: true 
-      });
-      
-    } catch (error) {
-      console.error(error);
-    }
+        const response = await axios.get(`http://localhost:8000/api/showProduct/${id}/`, config);
+        const parsedData = response.data;
+        console.log(parsedData);
+        this.setState({
+          name: parsedData.name,
+          description: parsedData.description,
+          stock: parsedData.stock,
+          price: parsedData.price,
+          childValue: true 
+        });
+        return Promise.resolve(); // Resolve the promise when data is fetched and processed
+      } catch (error) {
+        console.error(error);
+        return Promise.reject(error); // Reject the promise if an error occurs
+      }
     
   }
 
   componentDidMount() {
-    this.fetchData();
-    
+    this.fetchData()
+      .then(() => {
+        this.props.onValueChange(false);
+      })
+      .catch(error => {
+        console.error(error);
+      });
   }
 
   render() {
