@@ -41,6 +41,16 @@ function Login() {
       setAccessToken(storedAccessToken);
       checkCurrentUser(storedAccessToken, storedRefreshToken);
     }
+
+    const tokenRefreshTimer = setInterval(() => {
+      if (storedAccessToken) {
+        refreshAccessToken(storedAccessToken, storedRefreshToken);
+      }
+    }, 5 * 60 * 1000); // Refresh token every 5 minutes
+
+    return () => {
+      clearInterval(tokenRefreshTimer); // Clear the timer when component unmounts
+    };
   }, []);
 
   function checkCurrentUser(token, refresh) {
@@ -55,29 +65,6 @@ function Login() {
       })
       .catch(function (error) {
         console.log('Error in catch of checkCurrentUser:', error);
-
-        client
-          .post(
-            '/api/token/refresh/',
-            {
-              refresh: refresh,
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          )
-          .then(function (res) {
-            setCurrentUser(true);
-            const { access } = res.data;
-            setAccessToken(access);
-            localStorage.setItem('accessToken', access);
-          })
-          .catch(function (err) {
-            console.log('Error in catch of refresh token:', err);
-          });
-
         setCurrentUser(false);
       });
   }
@@ -85,6 +72,29 @@ function Login() {
   function storeTokens(token, refresh) {
     localStorage.setItem('accessToken', token);
     localStorage.setItem('refreshToken', refresh);
+  }
+
+  function refreshAccessToken(token, refresh) {
+    client
+      .post(
+        '/api/token/refresh/',
+        {
+          refresh: refresh,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then(function (res) {
+        const { access } = res.data;
+        setAccessToken(access);
+        localStorage.setItem('accessToken', access);
+      })
+      .catch(function (err) {
+        console.log('Error in refresh token:', err);
+      });
   }
 
   function submitLogin(e) {
