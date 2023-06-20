@@ -5,7 +5,11 @@ import { toast } from 'react-toastify';
 class Update extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+        onValueChange: '',
+    };
     this.valueFromParent = props.valueFromParent;
+    
     this.state = {
       name: '',
       description: '',
@@ -15,6 +19,9 @@ class Update extends React.Component {
     };
     this.changeHandler = this.changeHandler.bind(this);
     this.submitForm = this.submitForm.bind(this);
+    
+    this.props.onValueChange(true);
+    console.log("constructor")
   }
 
   // Input Change Handler
@@ -75,6 +82,7 @@ class Update extends React.Component {
         autoClose: 3000,
       });
     }
+    
   }
 
   fetchData = async () => {
@@ -95,15 +103,19 @@ class Update extends React.Component {
         name: parsedData.name,
         description: parsedData.description,
         stock: parsedData.stock,
-        price: parsedData.price
+        price: parsedData.price,
+        childValue: true 
       });
+      
     } catch (error) {
       console.error(error);
     }
+    
   }
 
   componentDidMount() {
     this.fetchData();
+    
   }
 
   render() {

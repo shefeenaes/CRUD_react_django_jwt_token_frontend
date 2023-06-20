@@ -23,6 +23,15 @@ function Login() {
   const [password, setPassword] = useState('');
   const [accessToken, setAccessToken] = useState('');
   const [refreshToken, setRefreshToken] = useState('');
+  const [grandparentValue, setGrandparentValue] = useState('');
+
+  const handleValueChange = (value) => {
+    setGrandparentValue(value);
+    
+    setShowAddProduct(grandparentValue);
+    setCurrentUser(true);
+    console.log('grandparentValue-->'+grandparentValue)
+  };
 
   useEffect(() => {
     const storedAccessToken = localStorage.getItem('accessToken');
@@ -42,6 +51,7 @@ function Login() {
       setCurrentUser(true);
     })
     .catch(function (error) {
+      console.log("error in catch of checkCurrentUser")
       client.post("/api/token/refresh/", {
         refresh: refreshToken,
       }, {
@@ -55,6 +65,8 @@ function Login() {
         localStorage.setItem('accessToken', access);
       })
       .catch(function (err) {
+        
+      console.log("error in catch of refresh token")
         console.log(err);
       });
       setCurrentUser(false);
@@ -107,17 +119,22 @@ function Login() {
       console.log(error);
     });
   }
+ 
   function goToHome(e) {
     e.preventDefault()
     setCurrentUser(true);
-    
     setShowAddProduct(false);
+    
+    console.log('showAddProduct+goToHome-->',showAddProduct)
    
   }
   function loadAddProduct(e) {
     e.preventDefault()
     
+    setCurrentUser(true);
     setShowAddProduct(true);
+    
+    console.log('showAddProduct+loadAddProduct-->',showAddProduct)
    
   }
 
@@ -125,30 +142,29 @@ function Login() {
     return (
       <div>
         <Navbar bg="dark" variant="dark">
-  <Container>
-    <Navbar.Brand>Product Admin App</Navbar.Brand>
-    <Navbar.Toggle />
-    <Navbar.Collapse className="justify-content-end">
-      <Navbar.Text>
-        <form onSubmit={e => goToHome(e)}>
-          <Button type="submit" variant="light" className="navbar-button">Home</Button>
-        </form>
-      </Navbar.Text>
-      <Navbar.Text>
-        <form onSubmit={e => loadAddProduct(e)}>
-          <Button type="submit" variant="light" className="navbar-button">Add New Product</Button>
-        </form>
-      </Navbar.Text>
-      <Navbar.Text>
-        <form onSubmit={e => submitLogout(e)}>
-          <Button type="submit" variant="light" className="navbar-button">Log out</Button>
-        </form>
-      </Navbar.Text>
-    </Navbar.Collapse>
-  </Container>
-</Navbar>
-
-{showAddProduct ? <AddProduct /> : <ShowProducts />}
+          <Container>
+            <Navbar.Brand>Product Admin App</Navbar.Brand>
+            <Navbar.Toggle />
+            <Navbar.Collapse className="justify-content-end">
+              <Navbar.Text>
+                <form onSubmit={e => goToHome(e)}>
+                  <Button type="submit" variant="light" className="navbar-button">Home</Button>
+                </form>
+              </Navbar.Text>
+              <Navbar.Text>
+                <form onSubmit={e => loadAddProduct(e)}>
+                  <Button type="submit" variant="light" className="navbar-button">Add New Product</Button>
+                </form>
+              </Navbar.Text>
+              <Navbar.Text>
+                <form onSubmit={e => submitLogout(e)}>
+                  <Button type="submit" variant="light" className="navbar-button">Log out</Button>
+                </form>
+              </Navbar.Text>
+            </Navbar.Collapse>
+          </Container>
+        </Navbar>
+        {showAddProduct ? <AddProduct /> : <ShowProducts onValueChange={handleValueChange}/>}
       </div>
     );
   }

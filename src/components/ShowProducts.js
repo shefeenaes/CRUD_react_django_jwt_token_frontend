@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import './DataTable.css';
 import UpdateProduct from './UpdateProduct';
 
-const ShowProducts = () => {
+const ShowProducts = ({ onValueChange }) => {
   const [products, setProducts] = useState([]);
   const [isUpdate, setUpdateComponent] = useState(false);
   const [id, setId] = useState();
@@ -149,13 +149,16 @@ const ShowProducts = () => {
         `http://127.0.0.1:8000/api/deleteProduct/${id}/`,
         config
       );
-      
+
       if (response.status === 200) {
         console.log('response-->', response);
         toast.success('Row deleted successfully!', {
           position: toast.POSITION.TOP_RIGHT,
           autoClose: 3000,
         });
+
+        // Fetch the updated data after successful deletion
+        fetchProducts();
       } else {
         // Handle API response error
         console.error('API response error:', response);
@@ -283,7 +286,7 @@ const ShowProducts = () => {
 
   return (
     <div>
-      <UpdateProduct valueFromParent={id} />
+      <UpdateProduct valueFromParent={id} onValueChange={onValueChange} />
     </div>
   );
 };
