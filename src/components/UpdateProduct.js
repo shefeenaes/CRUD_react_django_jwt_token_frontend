@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 
 const Update = (props) => {
   const [formData, setFormData] = useState({
@@ -101,6 +101,10 @@ const Update = (props) => {
   }, [valueFromParent]);
 
   return (
+    <div>
+        
+        <ToastContainer />
+    
     <table className="table table-bordered">
       <tbody>
         <tr>
@@ -164,6 +168,7 @@ const Update = (props) => {
         </tr>
       </tbody>
     </table>
+    </div>
   );
 };
 

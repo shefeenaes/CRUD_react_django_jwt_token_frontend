@@ -1,5 +1,6 @@
 import React from 'react';
-import { toast } from 'react-toastify';
+
+import { ToastContainer, toast } from 'react-toastify';
 
 class Add extends React.Component {
   constructor() {
@@ -124,6 +125,8 @@ class Add extends React.Component {
     const { errors } = this.state;
 
     return (
+        <div>
+        <ToastContainer />
       <table className="table table-bordered">
         <tbody>
           <tr>
@@ -185,6 +188,7 @@ class Add extends React.Component {
           </tr>
         </tbody>
       </table>
+      </div>
     );
   }
 }
