@@ -13,7 +13,7 @@ axios.defaults.xsrfHeaderName = 'X-CSRFToken';
 axios.defaults.withCredentials = true;
 
 const client = axios.create({
-  baseURL: "http://127.0.0.1:8000"
+  baseURL: 'http://127.0.0.1:8000',
 });
 
 function Login() {
@@ -23,42 +23,50 @@ function Login() {
   const [password, setPassword] = useState('');
   const [accessToken, setAccessToken] = useState('');
   const [refreshToken, setRefreshToken] = useState('');
+  const [grandparentValue, setGrandparentValue] = useState(false);
+
+  const handleValueChange = (value) => {
+    setGrandparentValue(value);
+
+    setShowAddProduct(grandparentValue);
+    setCurrentUser(true);
+    console.log('grandparentValue-->' + grandparentValue);
+  };
 
   useEffect(() => {
     const storedAccessToken = localStorage.getItem('accessToken');
+    const storedRefreshToken = localStorage.getItem('refreshToken');
+
     if (storedAccessToken) {
       setAccessToken(storedAccessToken);
-      checkCurrentUser(storedAccessToken);
+      checkCurrentUser(storedAccessToken, storedRefreshToken);
     }
+
+    const tokenRefreshTimer = setInterval(() => {
+      if (storedAccessToken) {
+        refreshAccessToken(storedAccessToken, storedRefreshToken);
+      }
+    }, 2 * 60 * 1000); // Refresh token every 2minutes
+
+    return () => {
+      clearInterval(tokenRefreshTimer); // Clear the timer when component unmounts
+    };
   }, []);
 
-  function checkCurrentUser(token) {
-    client.get("/api/profile/", {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    })
-    .then(function (res) {
-      setCurrentUser(true);
-    })
-    .catch(function (error) {
-      client.post("/api/token/refresh/", {
-        refresh: refreshToken,
-      }, {
+  function checkCurrentUser(token, refresh) {
+    client
+      .get('/api/profile/', {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       })
       .then(function (res) {
         setCurrentUser(true);
-        const { access } = res.data;
-        localStorage.setItem('accessToken', access);
       })
-      .catch(function (err) {
-        console.log(err);
+      .catch(function (error) {
+        console.log('Error in catch of checkCurrentUser:', error);
+        setCurrentUser(false);
       });
-      setCurrentUser(false);
-    });
   }
 
   function storeTokens(token, refresh) {
@@ -66,89 +74,113 @@ function Login() {
     localStorage.setItem('refreshToken', refresh);
   }
 
+  function refreshAccessToken(token, refresh) {
+    client
+      .post(
+        '/api/token/refresh/',
+        {
+          refresh: refresh,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then(function (res) {
+        const { access } = res.data;
+        setAccessToken(access);
+        localStorage.setItem('accessToken', access);
+      })
+      .catch(function (err) {
+        console.log('Error in refresh token:', err);
+      });
+  }
+
   function submitLogin(e) {
     e.preventDefault();
-    client.post(
-      "/api/token/",
-      {
+    client
+      .post('/api/token/', {
         username: username,
-        password: password
-      }
-    )
-    .then(function (res) {
-      const { access, refresh } = res.data;
-      setRefreshToken(refresh);
-      setAccessToken(access);
-      storeTokens(access, refresh);
-      setCurrentUser(true);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+        password: password,
+      })
+      .then(function (res) {
+        const { access, refresh } = res.data;
+        setRefreshToken(refresh);
+        setAccessToken(access);
+        storeTokens(access, refresh);
+        setCurrentUser(true);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   }
 
   function submitLogout(e) {
     e.preventDefault();
-    client.post(
-      "/api/logout/",
-      null,
-      {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
+    client
+      .post(
+        '/api/logout/',
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
         }
-      }
-    )
-    .then(function (res) {
-      setCurrentUser(false);
-      setAccessToken('');
-      localStorage.removeItem('accessToken');
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
+      )
+      .then(function (res) {
+        setCurrentUser(false);
+        setAccessToken('');
+        localStorage.removeItem('accessToken');
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   }
+
   function goToHome(e) {
-    e.preventDefault()
+    e.preventDefault();
     setCurrentUser(true);
-    
     setShowAddProduct(false);
-   
+
+    console.log('show add product-->', showAddProduct);
   }
   function loadAddProduct(e) {
-    e.preventDefault()
-    
+    e.preventDefault();
+
+    setCurrentUser(true);
     setShowAddProduct(true);
-   
+
+    console.log('showAddProduct+loadAddProduct-->', showAddProduct);
   }
 
   if (currentUser) {
     return (
       <div>
         <Navbar bg="dark" variant="dark">
-  <Container>
-    <Navbar.Brand>Product Admin App</Navbar.Brand>
-    <Navbar.Toggle />
-    <Navbar.Collapse className="justify-content-end">
-      <Navbar.Text>
-        <form onSubmit={e => goToHome(e)}>
-          <Button type="submit" variant="light" className="navbar-button">Home</Button>
-        </form>
-      </Navbar.Text>
-      <Navbar.Text>
-        <form onSubmit={e => loadAddProduct(e)}>
-          <Button type="submit" variant="light" className="navbar-button">Add New Product</Button>
-        </form>
-      </Navbar.Text>
-      <Navbar.Text>
-        <form onSubmit={e => submitLogout(e)}>
-          <Button type="submit" variant="light" className="navbar-button">Log out</Button>
-        </form>
-      </Navbar.Text>
-    </Navbar.Collapse>
-  </Container>
-</Navbar>
-
-{showAddProduct ? <AddProduct /> : <ShowProducts />}
+          <Container>
+            <Navbar.Brand>Product Admin App</Navbar.Brand>
+            <Navbar.Toggle />
+            <Navbar.Collapse className="justify-content-end">
+              <Navbar.Text>
+                <form onSubmit={(e) => goToHome(e)}>
+                  <Button type="submit" variant="light" className="navbar-button">Home</Button>
+                </form>
+              </Navbar.Text>
+              <Navbar.Text>
+                <form onSubmit={(e) => loadAddProduct(e)}>
+                  <Button type="submit" variant="light" className="navbar-button">Add New Product</Button>
+                </form>
+              </Navbar.Text>
+              <Navbar.Text>
+                <form onSubmit={(e) => submitLogout(e)}>
+                  <Button type="submit" variant="light" className="navbar-button">Log out</Button>
+                </form>
+              </Navbar.Text>
+            </Navbar.Collapse>
+          </Container>
+        </Navbar>
+        {showAddProduct ? <AddProduct /> : <ShowProducts onValueChange={handleValueChange} />}
       </div>
     );
   }
@@ -163,15 +195,15 @@ function Login() {
       </Navbar>
 
       <div className="center">
-        <Form onSubmit={e => submitLogin(e)}>
+        <Form onSubmit={(e) => submitLogin(e)}>
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>User Name</Form.Label>
-            <Form.Control type="text" placeholder="Enter username" value={username} onChange={e => setUsername(e.target.value)} />
+            <Form.Control type="text" placeholder="Enter username" value={username} onChange={(e) => setUsername(e.target.value)} />
             <Form.Text className="text-muted"></Form.Text>
           </Form.Group>
           <Form.Group className="mb-3" controlId="formBasicPassword">
             <Form.Label>Password</Form.Label>
-            <Form.Control type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
+            <Form.Control type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
           </Form.Group>
           <Button variant="primary" type="submit">
             Submit
