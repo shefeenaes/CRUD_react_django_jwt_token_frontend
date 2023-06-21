@@ -8,10 +8,13 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import ShowProducts from './ShowProducts';
 import AddProduct from './AddProduct';
+
+// Set default axios configuration for CSRF protection and cross-site credentials
 axios.defaults.xsrfCookieName = 'csrftoken';
 axios.defaults.xsrfHeaderName = 'X-CSRFToken';
 axios.defaults.withCredentials = true;
 
+// Create an axios instance with base URL
 const client = axios.create({
   baseURL: 'http://127.0.0.1:8000',
 });
@@ -25,6 +28,7 @@ function Login() {
   const [refreshToken, setRefreshToken] = useState('');
   const [grandparentValue, setGrandparentValue] = useState(false);
 
+  // Handler function to update grandparent value
   const handleValueChange = (value) => {
     setGrandparentValue(value);
 
@@ -46,13 +50,14 @@ function Login() {
       if (storedAccessToken) {
         refreshAccessToken(storedAccessToken, storedRefreshToken);
       }
-    }, 2 * 60 * 1000); // Refresh token every 2minutes
+    }, 2 * 60 * 1000); // Refresh token every 2 minutes
 
     return () => {
       clearInterval(tokenRefreshTimer); // Clear the timer when component unmounts
     };
   }, []);
 
+  // Function to check if the user is logged in
   function checkCurrentUser(token, refresh) {
     client
       .get('/api/profile/', {
@@ -69,17 +74,19 @@ function Login() {
       });
   }
 
+  // Function to store access and refresh tokens in local storage
   function storeTokens(token, refresh) {
     localStorage.setItem('accessToken', token);
     localStorage.setItem('refreshToken', refresh);
   }
 
+  // Function to refresh the access token
   function refreshAccessToken(token, refresh) {
     client
       .post(
         '/api/token/refresh/',
         {
-          refresh: refresh,
+          refresh: refreshToken,
         },
         {
           headers: {
@@ -97,6 +104,7 @@ function Login() {
       });
   }
 
+  // Function to handle login form submission
   function submitLogin(e) {
     e.preventDefault();
     client
@@ -116,6 +124,7 @@ function Login() {
       });
   }
 
+  // Function to handle logout
   function submitLogout(e) {
     e.preventDefault();
     client
@@ -138,6 +147,7 @@ function Login() {
       });
   }
 
+  // Function to go back to home view
   function goToHome(e) {
     e.preventDefault();
     setCurrentUser(true);
@@ -145,6 +155,8 @@ function Login() {
 
     console.log('show add product-->', showAddProduct);
   }
+
+  // Function to load add product view
   function loadAddProduct(e) {
     e.preventDefault();
 
@@ -154,6 +166,7 @@ function Login() {
     console.log('showAddProduct+loadAddProduct-->', showAddProduct);
   }
 
+  // Render component based on user authentication status
   if (currentUser) {
     return (
       <div>
@@ -185,6 +198,7 @@ function Login() {
     );
   }
 
+  // Render login form if user is not authenticated
   return (
     <div>
       <Navbar bg="dark" variant="dark">
