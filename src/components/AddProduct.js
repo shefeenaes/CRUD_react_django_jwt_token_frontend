@@ -2,9 +2,10 @@ import React from 'react';
 
 import { ToastContainer, toast } from 'react-toastify';
 
-class Add extends React.Component {
-  constructor() {
-    super();
+
+class AddProduct extends React.Component {
+  constructor(props) {
+    super(props);
 
     // Initialize component state
     this.state = {
@@ -111,6 +112,7 @@ class Add extends React.Component {
         price: '',
         stock: ''
       });
+      this.props.reloadHandler();
     } catch (error) {
       console.error(error);
       // Display an error message if an unexpected error occurs
@@ -193,4 +195,4 @@ class Add extends React.Component {
   }
 }
 
-export default Add;
+export default AddProduct;

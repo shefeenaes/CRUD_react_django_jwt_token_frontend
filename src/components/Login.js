@@ -27,15 +27,26 @@ function Login() {
   const [accessToken, setAccessToken] = useState('');
   const [refreshToken, setRefreshToken] = useState('');
   const [grandparentValue, setGrandparentValue] = useState(false);
+  const [reloadProduct, setReloadProduct] = useState(false);
 
   // Handler function to update grandparent value
-  const handleValueChange = (value) => {
-    setGrandparentValue(value);
+ /* function handleValueChange (){
+   // setGrandparentValue(value);
 
-    setShowAddProduct(grandparentValue);
+    setShowAddProduct(false);
     setCurrentUser(true);
+    setReloadProduct(!reloadProduct);
     console.log('grandparentValue-->' + grandparentValue);
-  };
+  }; */
+
+  function reloadHandler(){
+    setShowAddProduct(false);
+    setReloadProduct(!reloadProduct);
+  }
+  function reloadHandlerShow(){
+    console.log(' in reloadHandlerShow');
+    setReloadProduct(!reloadProduct);
+  }
 
   useEffect(() => {
     const storedAccessToken = localStorage.getItem('accessToken');
@@ -56,6 +67,12 @@ function Login() {
       clearInterval(tokenRefreshTimer); // Clear the timer when component unmounts
     };
   }, []);
+
+  useEffect(() =>{
+    console.log(' in useEffect');
+    
+
+  },[reloadProduct])
 
   // Function to check if the user is logged in
   function checkCurrentUser(token, refresh) {
@@ -193,7 +210,7 @@ function Login() {
             </Navbar.Collapse>
           </Container>
         </Navbar>
-        {showAddProduct ? <AddProduct /> : <ShowProducts onValueChange={handleValueChange} />}
+        {showAddProduct ? <AddProduct reloadHandler={reloadHandler}/> : <ShowProducts reloadHandlerShow={reloadHandlerShow} />}
       </div>
     );
   }

@@ -5,11 +5,13 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './DataTable.css';
 import UpdateProduct from './UpdateProduct';
+import Login from './Login';
 
-const ShowProducts = ({ onValueChange }) => {
+const ShowProducts = (props) => {
   const [products, setProducts] = useState([]);
   const [isUpdate, setUpdateComponent] = useState(false);
   const [id, setId] = useState();
+  const [reloadProduct, setReloadProduct] = useState(false);
 
   // Function to fetch products from the API
   const fetchProducts = async () => {
@@ -18,6 +20,9 @@ const ShowProducts = ({ onValueChange }) => {
       console.error('Access token is missing');
       return;
     }
+
+   
+
 
     const accessToken = storedAccessToken;
     const config = {
@@ -41,9 +46,20 @@ const ShowProducts = ({ onValueChange }) => {
     }
   };
 
+  function reloadHandlerUpdate(){
+    console.log(' in reloadHandlerUpdate');
+    setUpdateComponent(false);
+    setReloadProduct(!reloadProduct);
+   // props.reloadHandlerShow();
+  }
+
   useEffect(() => {
     fetchProducts();
   }, []);
+  useEffect(() => {
+    fetchProducts();
+  }, [reloadProduct]);
+
 
   // Function to handle the update button click
   const handleUpdate = (row) => {
@@ -165,7 +181,7 @@ const ShowProducts = ({ onValueChange }) => {
     <div>
       {isUpdate ? (
         <div>
-          <UpdateProduct valueFromParent={id} onValueChange={onValueChange} />
+          <UpdateProduct valueFromParent={id} reloadHandlerUpdate={reloadHandlerUpdate} />
         </div>
       ) : (
         <div>
