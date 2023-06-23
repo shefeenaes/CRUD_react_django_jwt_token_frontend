@@ -5,7 +5,6 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './DataTable.css';
 import UpdateProduct from './UpdateProduct';
-import Login from './Login';
 
 const ShowProducts = (props) => {
   const [products, setProducts] = useState([]);

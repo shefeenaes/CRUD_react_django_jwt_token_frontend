@@ -8,6 +8,7 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import ShowProducts from './ShowProducts';
 import AddProduct from './AddProduct';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Set default axios configuration for CSRF protection and cross-site credentials
 axios.defaults.xsrfCookieName = 'csrftoken';
@@ -26,24 +27,15 @@ function Login() {
   const [password, setPassword] = useState('');
   const [accessToken, setAccessToken] = useState('');
   const [refreshToken, setRefreshToken] = useState('');
-  const [grandparentValue, setGrandparentValue] = useState(false);
+  const [user, setUser] = useState('');
   const [reloadProduct, setReloadProduct] = useState(false);
 
-  // Handler function to update grandparent value
- /* function handleValueChange (){
-   // setGrandparentValue(value);
-
-    setShowAddProduct(false);
-    setCurrentUser(true);
-    setReloadProduct(!reloadProduct);
-    console.log('grandparentValue-->' + grandparentValue);
-  }; */
-
-  function reloadHandler(){
+  function reloadHandler() {
     setShowAddProduct(false);
     setReloadProduct(!reloadProduct);
   }
-  function reloadHandlerShow(){
+
+  function reloadHandlerShow() {
     console.log(' in reloadHandlerShow');
     setReloadProduct(!reloadProduct);
   }
@@ -68,27 +60,31 @@ function Login() {
     };
   }, []);
 
-  useEffect(() =>{
+  useEffect(() => {
     console.log(' in useEffect');
-    
-
-  },[reloadProduct])
+  }, [reloadProduct]);
 
   // Function to check if the user is logged in
   function checkCurrentUser(token, refresh) {
-    client
-      .get('/api/profile/', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(function (res) {
-        setCurrentUser(true);
-      })
-      .catch(function (error) {
-        console.log('Error in catch of checkCurrentUser:', error);
-        setCurrentUser(false);
-      });
+    try {
+      client
+        .get('/api/profile/', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then(function (res) {
+          setUser(res.data.user.username);
+          setCurrentUser(true);
+        })
+        .catch(function (error) {
+          console.log('Error in catch of checkCurrentUser:', error);
+          setCurrentUser(false);
+        });
+    } catch (error) {
+      console.error('Error in checkCurrentUser:', error);
+      setCurrentUser(false);
+    }
   }
 
   // Function to store access and refresh tokens in local storage
@@ -99,78 +95,87 @@ function Login() {
 
   // Function to refresh the access token
   function refreshAccessToken(token, refresh) {
-    client
-      .post(
-        '/api/token/refresh/',
-        {
-          refresh: refreshToken,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
+    try {
+      client
+        .post(
+          '/api/token/refresh/',
+          {
+            refresh: refresh,
           },
-        }
-      )
-      .then(function (res) {
-        const { access } = res.data;
-        setAccessToken(access);
-        localStorage.setItem('accessToken', access);
-      })
-      .catch(function (err) {
-        console.log('Error in refresh token:', err);
-      });
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then(function (res) {
+          const { access } = res.data;
+          setAccessToken(access);
+          localStorage.setItem('accessToken', access);
+        })
+        .catch(function (err) {
+          console.log('Error in refresh token:', err);
+        });
+    } catch (error) {
+      console.error('Error in refreshAccessToken:', error);
+    }
   }
 
   // Function to handle login form submission
   function submitLogin(e) {
     e.preventDefault();
-    client
-      .post('/api/token/', {
-        username: username,
-        password: password,
-      })
-      .then(function (res) {
-        const { access, refresh } = res.data;
-        setRefreshToken(refresh);
-        setAccessToken(access);
-        storeTokens(access, refresh);
-        setCurrentUser(true);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+    try {
+      client
+        .post('/api/token/', {
+          username: username,
+          password: password,
+        })
+        .then(function (res) {
+          const { access, refresh } = res.data;
+          setRefreshToken(refresh);
+          setAccessToken(access);
+          storeTokens(access, refresh);
+          setCurrentUser(true);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    } catch (error) {
+      console.error('Error in submitLogin:', error);
+    }
   }
 
   // Function to handle logout
   function submitLogout(e) {
     e.preventDefault();
-    client
-      .post(
-        '/api/logout/',
-        null,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      )
-      .then(function (res) {
-        setCurrentUser(false);
-        setAccessToken('');
-        localStorage.removeItem('accessToken');
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+    try {
+      client
+        .post(
+          '/api/logout/',
+          null,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        )
+        .then(function (res) {
+          setCurrentUser(false);
+          setAccessToken('');
+          localStorage.removeItem('accessToken');
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    } catch (error) {
+      console.error('Error in submitLogout:', error);
+    }
   }
 
   // Function to go back to home view
   function goToHome(e) {
-    e.preventDefault();
     setCurrentUser(true);
     setShowAddProduct(false);
-
-    console.log('show add product-->', showAddProduct);
   }
 
   // Function to load add product view
@@ -179,8 +184,6 @@ function Login() {
 
     setCurrentUser(true);
     setShowAddProduct(true);
-
-    console.log('showAddProduct+loadAddProduct-->', showAddProduct);
   }
 
   // Render component based on user authentication status
@@ -192,25 +195,32 @@ function Login() {
             <Navbar.Brand>Product Admin App</Navbar.Brand>
             <Navbar.Toggle />
             <Navbar.Collapse className="justify-content-end">
+              <Navbar.Text>{user}</Navbar.Text>
               <Navbar.Text>
                 <form onSubmit={(e) => goToHome(e)}>
-                  <Button type="submit" variant="light" className="navbar-button">Home</Button>
+                  <Button type="submit" variant="light" className="navbar-button">
+                    Home
+                  </Button>
                 </form>
               </Navbar.Text>
               <Navbar.Text>
                 <form onSubmit={(e) => loadAddProduct(e)}>
-                  <Button type="submit" variant="light" className="navbar-button">Add New Product</Button>
+                  <Button type="submit" variant="light" className="navbar-button">
+                    Add New Product
+                  </Button>
                 </form>
               </Navbar.Text>
               <Navbar.Text>
                 <form onSubmit={(e) => submitLogout(e)}>
-                  <Button type="submit" variant="light" className="navbar-button">Log out</Button>
+                  <Button type="submit" variant="light" className="navbar-button">
+                    Log out
+                  </Button>
                 </form>
               </Navbar.Text>
             </Navbar.Collapse>
           </Container>
         </Navbar>
-        {showAddProduct ? <AddProduct reloadHandler={reloadHandler}/> : <ShowProducts reloadHandlerShow={reloadHandlerShow} />}
+        {showAddProduct ? <AddProduct reloadHandler={reloadHandler} /> : <ShowProducts reloadHandlerShow={reloadHandlerShow} />}
       </div>
     );
   }
@@ -226,7 +236,7 @@ function Login() {
       </Navbar>
 
       <div className="center">
-        <Form onSubmit={(e) => submitLogin(e)}>
+        <Form onSubmit={(e) => submitLogin(e)} className="login-form">
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>User Name</Form.Label>
             <Form.Control type="text" placeholder="Enter username" value={username} onChange={(e) => setUsername(e.target.value)} />

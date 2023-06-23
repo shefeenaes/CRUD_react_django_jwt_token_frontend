@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { ToastContainer, toast } from 'react-toastify';
-
+import 'react-toastify/dist/ReactToastify.css';
 
 class AddProduct extends React.Component {
   constructor(props) {
@@ -96,14 +96,27 @@ class AddProduct extends React.Component {
         body: JSON.stringify(this.state),
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
-          Authorization: `Bearer ${accessToken}`
+          'Authorization': `Bearer ${accessToken}`
         }
       })
-        .then(response => response.json(), toast.success('Product added successfully!', {
-          position: toast.POSITION.TOP_RIGHT,
-          autoClose: 3000
-        }))
-        .then(data => console.log(data));
+        .then(response => {
+          if (response.ok) {
+            toast.success('Product added successfully!', {
+              position: toast.POSITION.TOP_RIGHT,
+              autoClose: 3000
+            });
+            return response.json();
+          } else {
+            throw new Error('Network response was not ok.');
+          }
+        })
+        .then(data => {
+          console.log(data);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+      
 
       // Reset the form fields after successful submission
       this.setState({

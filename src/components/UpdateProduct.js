@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-const UpdateProduct = (props) => {
+const Update = (props) => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -62,7 +63,6 @@ const UpdateProduct = (props) => {
           });
           console.log(response.data);
         });
-        props.reloadHandlerUpdate();
     } catch (error) {
       console.error(error);
       toast.error('An unexpected error occurred', {
@@ -173,4 +173,4 @@ const UpdateProduct = (props) => {
   );
 };
 
-export default UpdateProduct;
+export default Update;
