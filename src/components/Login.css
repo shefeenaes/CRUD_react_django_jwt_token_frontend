@@ -9,21 +9,25 @@
 
 /* boostrap form style */
 
-.form-inline {
-  width: 100%;
+/* Login.css */
+
+.login-form {
+  max-width: 1000px;
+   /* Adjust the max-width to your desired size */
+  margin: 0 auto;
 }
 
-.form-group {
-  width: 90%;
+.login-form .form-control {
+  height: 45px; /* Adjust the height to your desired size */
+  font-size: 20px;
 }
 
-.input-group {
-  width: 90% !important;
+.login-form .btn-primary {
+  height: 50px; /* Adjust the height to match the input field height */
+  font-size: 18px;
+  padding: 10px 30px;
 }
 
-.form-control {
-  width: 80% !important;
-}
 
 span.input-group-addon {
   width: 50px !important;

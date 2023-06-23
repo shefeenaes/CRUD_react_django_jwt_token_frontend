@@ -1,54 +1,46 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-class Update extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-        onValueChange: '',
-        name: '',
-        description: '',
-        price: '',
-        stock: '',
-        image: '',
-      };
-      this.valueFromParent = props.valueFromParent;
+const Update = (props) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    price: '',
+    stock: '',
+    image: '',
+  });
 
-      this.changeHandler = this.changeHandler.bind(this);
-      this.submitForm = this.submitForm.bind(this);
-    
-  }
+  const { valueFromParent } = props;
 
-  // Input Change Handler
-  changeHandler(event) {
+  const changeHandler = (event) => {
     const { name, value } = event.target;
 
     if (name === 'price' || name === 'stock') {
       // Allow only numbers in the "price" and "stock" inputs
       const regex = /^[0-9\b]+$/;
       if (value === '' || regex.test(value)) {
-        this.setState({
-          [name]: value
-        });
+        setFormData((prevData) => ({
+          ...prevData,
+          [name]: value,
+        }));
       }
     } else {
-      this.setState({
-        [name]: value
-      });
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
     }
-  }
+  };
 
-  // Submit Form
-  submitForm() {
-    const id = this.valueFromParent;
+  const submitForm = () => {
+    const id = valueFromParent;
     const storedAccessToken = localStorage.getItem('accessToken');
     const accessToken = storedAccessToken;
-    console.log('accessToken-->', accessToken);
-    console.log('data-->', JSON.stringify(this.state));
 
     // Validation logic
-    if (!this.state.name || !this.state.description || !this.state.price || !this.state.stock) {
+    if (!formData.name || !formData.description || !formData.price || !formData.stock) {
       toast.error('Please fill out all the required fields!', {
         position: toast.POSITION.TOP_RIGHT,
         autoClose: 3000,
@@ -57,20 +49,20 @@ class Update extends React.Component {
     }
 
     try {
-      fetch(`http://127.0.0.1:8000/api/updateProduct/${id}/`, {
-        method: 'PUT',
-        body: JSON.stringify(this.state),
-        headers: {
-          'Content-type': 'application/json; charset=UTF-8',
-          'Authorization': `Bearer ${accessToken}`
-        },
-      })
-        .then(response => response.json(), toast.success('Product updated successfully!', {
-          position: toast.POSITION.TOP_RIGHT,
-          autoClose: 3000,
-        }))
-        .then((data) => console.log(data));
-
+      axios
+        .put(`http://127.0.0.1:8000/api/updateProduct/${id}/`, formData, {
+          headers: {
+            'Content-type': 'application/json; charset=UTF-8',
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+        .then((response) => {
+          toast.success('Product updated successfully!', {
+            position: toast.POSITION.TOP_RIGHT,
+            autoClose: 3000,
+          });
+          console.log(response.data);
+        });
     } catch (error) {
       console.error(error);
       toast.error('An unexpected error occurred', {
@@ -78,115 +70,107 @@ class Update extends React.Component {
         autoClose: 3000,
       });
     }
-    
-  }
+  };
 
-  fetchData = async () => {
-    const id = this.valueFromParent;
+  useEffect(() => {
+    const fetchData = async () => {
+      const id = valueFromParent;
+      const storedAccessToken = localStorage.getItem('accessToken');
+      const accessToken = storedAccessToken;
+      const config = {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      };
 
-    const storedAccessToken = localStorage.getItem('accessToken');
-    const accessToken = storedAccessToken;
-    const config = {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`
-      }
-    };
-    try {
+      try {
         const response = await axios.get(`http://localhost:8000/api/showProduct/${id}/`, config);
         const parsedData = response.data;
         console.log(parsedData);
-        this.setState({
+        setFormData({
           name: parsedData.name,
           description: parsedData.description,
           stock: parsedData.stock,
           price: parsedData.price,
-          childValue: true 
         });
-        return Promise.resolve(); // Resolve the promise when data is fetched and processed
       } catch (error) {
         console.error(error);
-        return Promise.reject(error); // Reject the promise if an error occurs
       }
+    };
+
+    fetchData();
+  }, [valueFromParent]);
+
+  return (
+    <div>
+        
+        <ToastContainer />
     
-  }
-
-  componentDidMount() {
-    this.fetchData()
-      .then(() => {
-        this.props.onValueChange(false);
-      })
-      .catch(error => {
-        console.error(error);
-      });
-  }
-
-  render() {
-    return (
-      <table className="table table-bordered">
-        <tbody>
-          <tr>
-            <th>Name</th>
-            <td>
-              <input
-                value={this.state.name}
-                name="name"
-                onChange={this.changeHandler}
-                type="text"
-                className="form-control"
-                required // Added "required" attribute
-              />
-            </td>
-          </tr>
-          <tr>
-            <th>Description</th>
-            <td>
-              <input
-                value={this.state.description}
-                name="description"
-                onChange={this.changeHandler}
-                type="text"
-                className="form-control"
-                required // Added "required" attribute
-              />
-            </td>
-          </tr>
-          <tr>
-            <th>Price</th>
-            <td>
-              <input
-                value={this.state.price}
-                name="price"
-                onChange={this.changeHandler}
-                type="text"
-                className="form-control"
-                pattern="[0-9]*" // Added "pattern" attribute to restrict input to numbers only
-                required // Added "required" attribute
-              />
-            </td>
-          </tr>
-          <tr>
-            <th>Stock</th>
-            <td>
-              <input
-                value={this.state.stock}
-                name="stock"
-                onChange={this.changeHandler}
-                type="text"
-                className="form-control"
-                pattern="[0-9]*" // Added "pattern" attribute to restrict input to numbers only
-                required // Added "required" attribute
-              />
-            </td>
-          </tr>
-          <tr>
-            <td colSpan="2">
-              <input type="submit" onClick={this.submitForm} className="btn btn-dark" />
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    );
-  }
-}
+    <table className="table table-bordered">
+      <tbody>
+        <tr>
+          <th>Name</th>
+          <td>
+            <input
+              value={formData.name}
+              name="name"
+              onChange={changeHandler}
+              type="text"
+              className="form-control"
+              required
+            />
+          </td>
+        </tr>
+        <tr>
+          <th>Description</th>
+          <td>
+            <input
+              value={formData.description}
+              name="description"
+              onChange={changeHandler}
+              type="text"
+              className="form-control"
+              required
+            />
+          </td>
+        </tr>
+        <tr>
+          <th>Price</th>
+          <td>
+            <input
+              value={formData.price}
+              name="price"
+              onChange={changeHandler}
+              type="text"
+              className="form-control"
+              pattern="[0-9]*"
+              required
+            />
+          </td>
+        </tr>
+        <tr>
+          <th>Stock</th>
+          <td>
+            <input
+              value={formData.stock}
+              name="stock"
+              onChange={changeHandler}
+              type="text"
+              className="form-control"
+              pattern="[0-9]*"
+              required
+            />
+          </td>
+        </tr>
+        <tr>
+          <td colSpan="2">
+            <input type="submit" onClick={submitForm} className="btn btn-dark" />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  );
+};
 
 export default Update;
